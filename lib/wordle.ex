@@ -5,6 +5,7 @@ defmodule Games.Wordle do
 
     zipped_list = Enum.zip(answer_list, guess_list)
 
+#First we green the grens
     greened_list =
       Enum.map(zipped_list, fn {answer_element, guess_element} ->
         if answer_element == guess_element do
@@ -14,8 +15,7 @@ defmodule Games.Wordle do
         end
       end)
 
-    IO.inspect("This is the greens: ")
-    IO.inspect(greened_list)
+# The we grey the greys
 
     remained_chars =
       Enum.reduce(greened_list, "", fn {answer_elem, _}, acc ->
@@ -39,35 +39,14 @@ defmodule Games.Wordle do
         end
       end)
 
-    IO.inspect("This is the greys: ")
-    IO.inspect(greyed_list)
+
+# And then we... we... well... something. Hit a wall. Now, the answer is there, ends up buried in a list within a list within a list.
 
     {answer, guess} = Enum.unzip(greyed_list)
-    IO.inspect("This is the answer: ")
-    IO.inspect(answer)
-
-    IO.inspect("This is the guess: ")
-    IO.inspect(guess)
+ 
     yellow_me(answer, guess)
 
-    # item = "a"
-    # item in list1
-    # index1_to_update = Enum.find_index(list1, fn n -> n === item end)
-    # index2_to_update = Enum.find_index(list2, fn n -> n === item end)
-    # new_list1 = List.replace_at(list1, index1_to_update, nil)
-    # new_list2 = List.replace_at(list2, index2_to_update, :yellow)
-
-    # IO.inspect(list1)
-    # IO.inspect(list2)
-
-    # item = "b"
-    # item in new_list1 |> IO.inspect()
-    # IO.inspect(item)
-    # index1_to_update = Enum.find_index(new_list1, fn n -> n === item end)  |> IO.inspect()
-    # index2_to_update = Enum.find_index(new_list2, fn n -> n === item end)   |> IO.inspect()
-    # List.replace_at(new_list1, index1_to_update, nil) |> IO.inspect()
-    # List.replace_at(new_list2, index2_to_update, :yellow)
-  end
+    end
 
   def yellow_me(answer, guess) do
     if Enum.all?(guess, fn x -> is_atom(x) end) do
@@ -77,11 +56,9 @@ defmodule Games.Wordle do
       Enum.map(guess, fn element ->
         if is_binary(element) do
           if Enum.member?(answer, element) do
-            index1_to_update = Enum.find_index(answer, fn n -> n === element end) |> IO.inspect()
-            index2_to_update = Enum.find_index(guess, fn n -> n === element end) |> IO.inspect()
+            index1_to_update = Enum.find_index(answer, fn n -> n === element end) 
+            index2_to_update = Enum.find_index(guess, fn n -> n === element end) 
             updated_answer = List.replace_at(answer, index1_to_update, nil)
-            IO.inspect("this is the updated answer: ")
-            IO.inspect(updated_answer)
             updated_guess = List.replace_at(guess, index2_to_update, :yellow)
             yellow_me(updated_answer, updated_guess)
           else
