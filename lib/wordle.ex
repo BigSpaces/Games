@@ -106,25 +106,5 @@ defmodule Games.Wordle do
     end
   end
 
-  # if plays === 0 do
-  #   answer = random_answer([])
-  #   guess = IO.gets("Gimme a 5 letter word, mate!\n")
-  #   plays = plays + 1
-  #   feedback(answer, guess)
-  #   play_starts(guess, answer, plays)
-  # else
-  #   guess = IO.gets("Ooops, mate, you have #{6 - plays} left. Do try!\n")
-  #   plays = plays + 1
-  #   feedback(answer, guess)
-  #   play_starts(guess, answer, plays)
 
-  # end
 end
-
-# Generate random word - DONE
-# Get word from user - DONE
-# Validate it a bit, I guess - TO BE DONE
-# Launch the "feedback"
-# Check if the answer is all greens
-# If it is not, provide another chance to play and count +1
-# Upon reaching 6 times, salute and go
