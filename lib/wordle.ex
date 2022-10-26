@@ -5,6 +5,7 @@ defmodule Games.Wordle do
 
     zipped_list = Enum.zip(answer_list, guess_list)
 
+#First we green the grens
     greened_list =
       Enum.map(zipped_list, fn {answer_element, guess_element} ->
         if answer_element == guess_element do
