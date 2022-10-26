@@ -1,18 +1,43 @@
 defmodule Games.Wordle do
+  @doc """
+
+  This is the main entry point to the wordle module
+
+  The algorithm to solve Wordle is
+
+  (Turn these into sentences)
+  First, green the greens
+  Second, grey the greys
+  Third, figure out the yellows
+  The rest is grey
+  And we are done
+
+  (Summarise green the greens)
+  Wordle consists on an answer as well as a guess. We convert those into lists that can be processed together
+  "Green the greens" is a first pass of processing where we mark those characters of both lists that are the same
+  as well as being in the same place (or index). In the "guess" list, we mark with the atom :green
+  In the answer list, we mark the character as "processed" by replacing it with nil.
+
+
+  (Step by step)
+  * Split both strings into lists
+  * Both lists are zipped together in order to process them
+  * 2nd Check both lists against each other
+
+  )
+
+  """
   def feedback(answer, guess) do
     answer_list = String.split(answer, "", trim: true)
     guess_list = String.split(guess, "", trim: true)
 
     zipped_list = Enum.zip(answer_list, guess_list)
 
-#First we green the grens
+    # First we green the grens
     greened_list =
-      Enum.map(zipped_list, fn {answer_element, guess_element} ->
-        if answer_element == guess_element do
-          {nil, :green}
-        else
-          {answer_element, guess_element}
-        end
+      Enum.map(zipped_list, fn
+        {elem, elem} -> {nil, :green}
+        elem -> elem
       end)
 
     remained_chars =
@@ -105,6 +130,4 @@ defmodule Games.Wordle do
         "Sorry but... You are a loser, and you know it. Good news: unlike in Elixir, this is a mutable variable and you can play again"
     end
   end
-
-
 end
