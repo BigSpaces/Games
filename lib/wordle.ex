@@ -40,6 +40,9 @@ defmodule Games.Wordle do
         elem -> elem
       end)
 
+    # take it from here
+    # {answer_list2, guess_list2} = Enum.unzip(greened_list)
+
     remained_chars =
       Enum.reduce(greened_list, "", fn {answer_elem, _}, acc ->
         if is_binary(answer_elem) do
@@ -102,32 +105,33 @@ defmodule Games.Wordle do
     end
   end
 
-  def play(evaluation \\ [], answer \\ "", rounds \\ 0, won \\ false) do
-    case rounds do
-      0 ->
-        answer = random_answer([])
-        guess = IO.gets("Gimme a 5 letter word, please!\n")
-        evaluation = feedback(answer, guess)
-        IO.inspect("Your guess is: ")
-        IO.inspect(evaluation)
-        IO.inspect("So...")
-        won = won?(evaluation)
-        play(evaluation, answer, rounds + 1, won)
+  def play(answer \\ nil, rounds \\ 0) do
+    answer = answer || random_answer([])
 
-      n when n < 6 and won == false ->
-        guess = IO.gets("...you have #{6 - rounds} rounds left. Do try!\n")
-        evaluation = feedback(answer, guess)
-        IO.inspect("Your guess is: ")
-        IO.inspect(evaluation)
-        IO.inspect("So...")
-        won = won?(evaluation)
-        play(evaluation, answer, rounds + 1, won)
+    message =
+      if rounds == 0 do
+        "Gimme a 5 letter word, please!\n"
+      else
+        "...you have #{6 - rounds} rounds left. Do try!\n"
+      end
 
-      n when n < 6 and won == true ->
-        IO.inspect("Wowza! That was something. You won at attempt number #{n}")
+    guess = IO.gets(message)
+    evaluation = feedback(answer, guess)
+    won = won?(evaluation)
 
-      6 ->
+    case {rounds, won} do
+      {_, true} ->
+        IO.inspect("Wowza! That was something. You won at attempt number #{rounds}")
+
+      {6, _} ->
         "Sorry but... You are a loser, and you know it. Good news: unlike in Elixir, this is a mutable variable and you can play again"
+
+      {_, false} ->
+        # IO.puts(IO.ANSI.green <> "YELLOW")
+        IO.inspect("Your guess is: ")
+        IO.inspect(evaluation)
+        IO.inspect("So...")
+        play(answer, rounds + 1)
     end
   end
 end
