@@ -14,9 +14,6 @@ defmodule Games.Wordle do
         end
       end)
 
-    IO.inspect("This is the greens: ")
-    IO.inspect(greened_list)
-
     remained_chars =
       Enum.reduce(greened_list, "", fn {answer_elem, _}, acc ->
         if is_binary(answer_elem) do
@@ -39,58 +36,94 @@ defmodule Games.Wordle do
         end
       end)
 
-    IO.inspect("This is the greys: ")
-    IO.inspect(greyed_list)
-
     {answer, guess} = Enum.unzip(greyed_list)
-    IO.inspect("This is the answer: ")
-    IO.inspect(answer)
-
-    IO.inspect("This is the guess: ")
-    IO.inspect(guess)
     yellow_me(answer, guess)
-
-    # item = "a"
-    # item in list1
-    # index1_to_update = Enum.find_index(list1, fn n -> n === item end)
-    # index2_to_update = Enum.find_index(list2, fn n -> n === item end)
-    # new_list1 = List.replace_at(list1, index1_to_update, nil)
-    # new_list2 = List.replace_at(list2, index2_to_update, :yellow)
-
-    # IO.inspect(list1)
-    # IO.inspect(list2)
-
-    # item = "b"
-    # item in new_list1 |> IO.inspect()
-    # IO.inspect(item)
-    # index1_to_update = Enum.find_index(new_list1, fn n -> n === item end)  |> IO.inspect()
-    # index2_to_update = Enum.find_index(new_list2, fn n -> n === item end)   |> IO.inspect()
-    # List.replace_at(new_list1, index1_to_update, nil) |> IO.inspect()
-    # List.replace_at(new_list2, index2_to_update, :yellow)
   end
 
   def yellow_me(answer, guess) do
     if Enum.all?(guess, fn x -> is_atom(x) end) do
-      IO.inspect("Game is over")
       guess
     else
-      Enum.map(guess, fn element ->
-        if is_binary(element) do
-          if Enum.member?(answer, element) do
-            index1_to_update = Enum.find_index(answer, fn n -> n === element end) |> IO.inspect()
-            index2_to_update = Enum.find_index(guess, fn n -> n === element end) |> IO.inspect()
-            updated_answer = List.replace_at(answer, index1_to_update, nil)
-            IO.inspect("this is the updated answer: ")
-            IO.inspect(updated_answer)
-            updated_guess = List.replace_at(guess, index2_to_update, :yellow)
-            yellow_me(updated_answer, updated_guess)
-          else
-            index2_to_update = Enum.find_index(guess, fn n -> n === element end)
-            updated_guess = List.replace_at(guess, index2_to_update, :grey)
-            yellow_me(answer, updated_guess)
-          end
+      next_guess_index = Enum.find_index(guess, fn char -> is_binary(char) end)
+      next_guess_char = Enum.at(guess, next_guess_index)
+      next_answer_index = Enum.find_index(answer, fn char -> char == next_guess_char end)
+
+      {answer, guess} =
+        if next_answer_index do
+          updated_answer = List.replace_at(answer, next_answer_index, nil)
+          updated_guess = List.replace_at(guess, next_guess_index, :yellow)
+          {updated_answer, updated_guess}
+        else
+          updated_guess = List.replace_at(guess, next_guess_index, :grey)
+          {answer, updated_guess}
         end
-      end)
+
+      yellow_me(answer, guess)
     end
   end
+
+  def won?(evaluation) do
+    Enum.all?(evaluation, fn letter -> letter === :green end)
+  end
+
+  # @spec random_answer([binary | maybe_improper_list(any, binary | []) | char]) :: binary
+  def random_answer(answer \\ []) do
+    if length(answer) < 5 do
+      answer = [Enum.random(97..122) | answer]
+      random_answer(answer)
+    else
+      List.to_string(answer)
+    end
+  end
+
+  def play(evaluation \\ [], answer \\ "", rounds \\ 0, won \\ false) do
+    case rounds do
+      0 ->
+        answer = random_answer([])
+        guess = IO.gets("Gimme a 5 letter word, please!\n")
+        evaluation = feedback(answer, guess)
+        IO.inspect("Your guess is: ")
+        IO.inspect(evaluation)
+        IO.inspect("So...")
+        won = won?(evaluation)
+        play(evaluation, answer, rounds + 1, won)
+
+      n when n < 6 and won == false ->
+        guess = IO.gets("...you have #{6 - rounds} rounds left. Do try!\n")
+        evaluation = feedback(answer, guess)
+        IO.inspect("Your guess is: ")
+        IO.inspect(evaluation)
+        IO.inspect("So...")
+        won = won?(evaluation)
+        play(evaluation, answer, rounds + 1, won)
+
+      n when n < 6 and won == true ->
+        IO.inspect("Wowza! That was something. You won at attempt number #{n}")
+
+      6 ->
+        "Sorry but... You are a loser, and you know it. Good news: unlike in Elixir, this is a mutable variable and you can play again"
+    end
+  end
+
+  # if plays === 0 do
+  #   answer = random_answer([])
+  #   guess = IO.gets("Gimme a 5 letter word, mate!\n")
+  #   plays = plays + 1
+  #   feedback(answer, guess)
+  #   play_starts(guess, answer, plays)
+  # else
+  #   guess = IO.gets("Ooops, mate, you have #{6 - plays} left. Do try!\n")
+  #   plays = plays + 1
+  #   feedback(answer, guess)
+  #   play_starts(guess, answer, plays)
+
+  # end
 end
+
+# Generate random word - DONE
+# Get word from user - DONE
+# Validate it a bit, I guess - TO BE DONE
+# Launch the "feedback"
+# Check if the answer is all greens
+# If it is not, provide another chance to play and count +1
+# Upon reaching 6 times, salute and go
