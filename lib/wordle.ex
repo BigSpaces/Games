@@ -1,39 +1,45 @@
 defmodule Games.Wordle do
+
   @doc """
 
   This is the main entry point to the wordle module
 
   The algorithm to solve Wordle is
 
-  (Turn these into sentences)
-  First, green the greens
-  Second, grey the greys
-  Third, figure out the yellows
-  The rest is grey
-  And we are done
+  Both guess and answer are converted into lists of characters
+  On a first pass, we locate the characters that are equal and in the same position (GREENS).
+  On a second pass, we process those characters from the guess that are not in the answer (GREYS)
+  On a third pass, characters that remain in the guess are bound to be found in the answer. Those are YELLOW.
 
-  (Summarise green the greens)
-  Wordle consists on an answer as well as a guess. We convert those into lists that can be processed together
-  "Green the greens" is a first pass of processing where we mark those characters of both lists that are the same
-  as well as being in the same place (or index). In the "guess" list, we mark with the atom :green
-  In the answer list, we mark the character as "processed" by replacing it with nil.
+  First pass - Green the greens: Both guess and answer are converted into lists.
+  In the guess list, the characters that match the answer are marked :green.
+  The corresponding characters in the answer are marked nil, which will signal that have already been checked and processed.
+
+  Second pass - Grey the greys: each character in the guess list is checked against the remaining active characters in the answer.
+  Characters that are not found in the answer are marked :grey in the guess list.
+
+  Third pass - Characters that remain in the guess list are bound to be yellow at least once.
+  They are processed one by one, marked :yellow in the guess list, and nil in the answer list.
+  When a character from the guess list is no longer found in the answer list, it is marked :grey
 
 
-  (Step by step)
-  * Split both strings into lists
-  * Both lists are zipped together in order to process them
-  * 2nd Check both lists against each other
+  Split both strings into lists (answer & guess)
+  Both lists are zipped together in order to process them later through Enum.map()
+  A new list (greened_list) is created in Enum.map. Should the elements in the guess list and the answer list be the same ({elem, elem})
+  a tuple {nil, :green} is returned as part of the zipped list. Otherwise the characters remain the same.
 
   )
 
   """
+
+  @spec feedback(binary, binary) :: list()
   def feedback(answer, guess) do
     answer_list = String.split(answer, "", trim: true)
     guess_list = String.split(guess, "", trim: true)
 
     zipped_list = Enum.zip(answer_list, guess_list)
 
-    # First we green the grens
+
     greened_list =
       Enum.map(zipped_list, fn
         {elem, elem} -> {nil, :green}
@@ -42,7 +48,7 @@ defmodule Games.Wordle do
 
     # take it from here
     # {answer_list2, guess_list2} = Enum.unzip(greened_list)
-
+      
     remained_chars =
       Enum.reduce(greened_list, "", fn {answer_elem, _}, acc ->
         if is_binary(answer_elem) do
